@@ -1,13 +1,24 @@
 const express = require('express');
-const cors = require('cors');
+const socketio = require('socket.io');
+const http = require('http');
+
+const router = require('./router');
+
 const app = express();
-app.use(cors);
+const server = http.createServer(app);
+const io = socketio(server);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-})
+io.on('connection', (socket) => {
+  console.log('a user connected');
 
-const port = 6006;
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+app.use(router);
+
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`Server is listening at http://localhost:${port}`)
 });
